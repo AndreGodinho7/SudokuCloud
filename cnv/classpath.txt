@@ -1,0 +1,1 @@
+export CLASSPATH=%CLASSPATH%:~/cnv/instrumented:~/cnv:~/cnv/BIT:.
