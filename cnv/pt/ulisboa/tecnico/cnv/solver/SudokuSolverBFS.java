@@ -3,7 +3,7 @@ package pt.ulisboa.tecnico.cnv.solver;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SudokuSolverBFS extends  AbstractSudokuSolver {
+public class SudokuSolverBFS extends AbstractSudokuSolver {
 
     public SudokuSolverBFS() {
         super();

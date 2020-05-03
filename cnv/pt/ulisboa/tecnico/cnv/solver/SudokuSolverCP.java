@@ -8,7 +8,7 @@ import java.util.List;
  *
  * @author mikaelbrevik
  */
-public class SudokuSolverCP extends AbstractSudokuSolver{
+public class SudokuSolverCP extends AbstractSudokuSolver {
 
 
     public SudokuSolverCP() {

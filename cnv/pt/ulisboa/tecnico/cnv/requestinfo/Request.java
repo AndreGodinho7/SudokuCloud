@@ -1,11 +1,11 @@
 package pt.ulisboa.tecnico.cnv.requestinfo;
 
-public class Request {
-    private String puzzle_name;
-    private String strategy;
-    private int sizeX;
-    private int sizeY;
-    private int miss_ele;
+public abstract class Request {
+    protected String puzzle_name;
+    protected String strategy;
+    protected double sizeX;
+    protected double sizeY;
+    protected int miss_ele;
 
     public Request(String puzzle_name, String strategy, int sizeX, int sizeY, int miss_ele) {
         this.puzzle_name = puzzle_name;
@@ -14,6 +14,8 @@ public class Request {
         this.sizeY = sizeY;
         this.miss_ele = miss_ele;
     }
+
+    public abstract double calculateCost(long methods);
 
     @Override
     public String toString() {

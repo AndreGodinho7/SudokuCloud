@@ -3,7 +3,7 @@ package pt.ulisboa.tecnico.cnv.solver;
 public class SampleParserMain {
     public static void main(final String[] args) {
         // Get user-provided flags.
-        final SolverArgumentParser ap = new SolverArgumentParser(args);
+        final pt.ulisboa.tecnico.cnv.solver.SolverArgumentParser ap = new SolverArgumentParser(args);
 
         // Specified board size.
         int N1 = ap.getN1();

@@ -41,15 +41,15 @@ public class SolverFactory {
         return instance;
     }
 
-    public Solver makeSolver(final SolverArgumentParser ap) {
+    public pt.ulisboa.tecnico.cnv.solver.Solver makeSolver(final SolverArgumentParser ap) {
 
         final SolverType t = ap.getSolverStrategy();
 
         if(t == SolverType.BFS) {
-            return new Solver(ap, new SudokuSolverBFS());
+            return new pt.ulisboa.tecnico.cnv.solver.Solver(ap, new SudokuSolverBFS());
         }
         else if(t == SolverType.DLX) {
-            return new Solver(ap, new SudokuSolverDLX());
+            return new pt.ulisboa.tecnico.cnv.solver.Solver(ap, new SudokuSolverDLX());
         }
         else if(t == SolverType.CP) {
             return new Solver(ap, new SudokuSolverCP());

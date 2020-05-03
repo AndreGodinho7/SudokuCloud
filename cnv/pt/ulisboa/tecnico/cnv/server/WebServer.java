@@ -5,25 +5,21 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.json.JSONArray;
+import pt.ulisboa.tecnico.cnv.requestinfo.*;
 import pt.ulisboa.tecnico.cnv.solver.Solver;
 import pt.ulisboa.tecnico.cnv.solver.SolverArgumentParser;
 import pt.ulisboa.tecnico.cnv.solver.SolverFactory;
-import pt.ulisboa.tecnico.cnv.requestinfo.*;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.InetSocketAddress;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+
 public class WebServer {
-	private static final MeasurementsManager WebServerManager = MeasurementsManager.getManager();
+	public static final MeasurementsManager WebServerManager = MeasurementsManager.getManager();
 
 	public static void main(final String[] args) throws Exception {
 
@@ -32,6 +28,7 @@ public class WebServer {
 		final HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
 
 		server.createContext("/sudoku", new MyHandler());
+        server.createContext("/health", new HealthHandler());
 
 		// be aware! infinite pool of threads!
 		server.setExecutor(Executors.newCachedThreadPool());
@@ -78,7 +75,6 @@ public class WebServer {
 				newArgs.add("-" + splitParam[0]);
 				newArgs.add(splitParam[1]);
 			}
-			System.out.println(request_parameters);
 			newArgs.add("-b");
 			newArgs.add(parseRequestBody(t.getRequestBody()));
 
@@ -91,9 +87,7 @@ public class WebServer {
 				args[i] = arg;
 				i++;
 			}
-            System.out.println("WebServer Manager Before Request");
-			System.out.println("Thread ID: "+Thread.currentThread().getId());
-			System.out.println(WebServerManager);
+
 
 			// Auxiliar variables
 			String puzzle_name = request_parameters.get("i").toString();
@@ -102,9 +96,19 @@ public class WebServer {
 			int n2 = Integer.parseInt(request_parameters.get("n2").toString());
 			int miss_ele = Integer.parseInt(request_parameters.get("un").toString());
 
-			Request request = new Request(puzzle_name, strategy, n1, n2, miss_ele);
-            Measurement measure = new Measurement(Thread.currentThread().getId(), request);
-			WebServerManager.insertMeasurement(Thread.currentThread().getId(), measure);
+			Request request;
+			if (strategy.equals("BFS")){
+				request = new RequestBFS(puzzle_name, strategy, n1, n2, miss_ele);
+			}
+			else if (strategy.equals("CP")){
+				request = new RequestCP(puzzle_name, strategy, n1, n2, miss_ele);
+			}
+			else {
+				request = new RequestDLX(puzzle_name, strategy, n1, n2, miss_ele);
+			}
+
+			Measurement measure = new Measurement(Thread.currentThread().getId(), request);
+			WebServerManager.insertMeasurement(measure);
 
 			// Get user-provided flags.
 			final SolverArgumentParser ap = new SolverArgumentParser(args);
@@ -129,8 +133,22 @@ public class WebServer {
 			hdrs.add("Access-Control-Allow-Methods", "POST, GET, HEAD, OPTIONS");
 			hdrs.add("Access-Control-Allow-Headers", "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
 
-            t.sendResponseHeaders(200, solution.toString().length());
+			t.sendResponseHeaders(200, solution.toString().length());
 
+
+			/// Calculate cost with measurements
+			WebServerManager.calcRequestCost(Thread.currentThread().getId());
+			try {
+				WebServerManager.writeMeasurementsManager(Thread.currentThread().getId(), "/home/ec2-user/cnv/LOG.txt");
+				//MeasurementsManager.writeMeasurementsManager(Thread.currentThread().getId(), "/home/ec2-user/cnv/LOG.txt");
+			} catch (Exception e){
+				FileWriter file = new FileWriter("/home/ec2-user/cnv/LOGfail.txt");
+				PrintWriter writer = new PrintWriter(file);
+				writer.print("FAIL\n");
+				e.printStackTrace(writer);
+				writer.close();
+				file.close();
+			}
 
             final OutputStream os = t.getResponseBody();
             OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
@@ -140,9 +158,17 @@ public class WebServer {
 
 			os.close();
 
-			WebServerManager.writeMeasurementsManager(Thread.currentThread().getId(), "WebServerOutput");
-
 			System.out.println("> Sent response to " + t.getRemoteAddress().toString());
 		}
 	}
+
+    static class HealthHandler implements HttpHandler {
+        @Override
+        public void handle(final HttpExchange t) throws IOException {
+            t.sendResponseHeaders(200, 0);
+            OutputStream os = t.getResponseBody();
+            os.write("OK".getBytes());
+            os.close();
+        }
+    }
 }

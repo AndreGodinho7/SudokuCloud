@@ -1,7 +1,5 @@
 package pt.ulisboa.tecnico.cnv.solver;
 
-import pt.ulisboa.tecnico.cnv.solver.Solver;
-
 public interface SudokuSolver {
     boolean runSolver(Solver solver);
 

@@ -5,7 +5,7 @@ import org.json.JSONArray;
 public class Solver {
 
 
-    private final SolverArgumentParser ap;
+    private final pt.ulisboa.tecnico.cnv.solver.SolverArgumentParser ap;
     private final SudokuSolver strategy;
     private int[][] board = null;
 
