@@ -20,8 +20,20 @@ public class Measurement {
         return m_count;
     }
 
+    public Request getRequest() {
+        return request;
+    }
+
+    public double getCost() {
+        return cost;
+    }
+
     public void incMethods(){
         this.m_count++;
+    }
+
+    public void set_methods(long methods){
+        this.m_count = methods;
     }
 
     public void calculateCost(){
